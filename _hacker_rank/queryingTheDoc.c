@@ -16,55 +16,71 @@ char **kth_sentence_in_mth_paragraph(char ****document, int k, int m) {
 char ***kth_paragraph(char ****document, int k) { return document[k - 1]; }
 
 char ****get_document(char *text) {
+    // printf("%s", text);
     int len = strlen(text);
 
-    int charCount = 0, wordCount = 0, sentCount = 0, paraCount = 0;
-    char ch;
-    char *word = (char *)malloc((len + 1) * sizeof(char));
-    char ****doc = (char ****)malloc((paraCount + 1) * sizeof(char ***));
+    // kthParagraph, mthSentence, nthWord, othChar
+    int othChar = 0, nthWord = 0, mthSentence = 0, kthParagraph = 0;
+    char ch,
+        *word = (char *)malloc((len + 1) * sizeof(char));
+    char ****doc = (char ****)malloc((kthParagraph + 1) * sizeof(char ***));
+    doc[kthParagraph] = (char ***)malloc((mthSentence + 1) * sizeof(char **));
+    doc[kthParagraph][mthSentence] = (char **)malloc((nthWord + 1) * sizeof(char *));
 
     for (int i = 0; i < len; i++) {
         ch = text[i];
+
         if (ch == '\n') {
-            wordCount = 0;
-            sentCount = 0;
-            paraCount++;
+            word[0] = '\0';
+            othChar = 0;
+            nthWord = 0;
+            mthSentence = 0;
+            kthParagraph++;
+
+            doc = (char ****)realloc(doc, (kthParagraph + 1) * sizeof(char ***));
+            if (doc == NULL) printf("docn Error\n");
+
+            doc[kthParagraph] = (char ***)malloc((mthSentence + 1) * sizeof(char **));
+            if (doc[kthParagraph] == NULL) printf("doc[kthParagraph]n Error\n");
+
+            doc[kthParagraph][mthSentence] = (char **)malloc((nthWord + 1) * sizeof(char *));
+            if (doc[kthParagraph][mthSentence] == NULL) printf("doc[kthParagraph][mthSentence]n Error\n");
+
             continue;
         }
 
         if (ch == ' ' || ch == '.') {
-            word[charCount] = '\0';
+            word[othChar] = '\0';
 
-            // document[paragraph][sentence][word]
-            doc = (char ****)realloc(doc, (paraCount + 1) * sizeof(char ***));
-            if (doc == NULL) printf("Error 1");
+            doc[kthParagraph][mthSentence][nthWord] = (char *)malloc((othChar + 1) * sizeof(char));
+            if (doc[kthParagraph][mthSentence][nthWord] == NULL) printf("doc[kthParagraph][mthSentence][nthWord] Error\n");
 
-            doc[paraCount] = (char ***)realloc(doc[paraCount], (sentCount + 1) * sizeof(char **));
-            if (doc[paraCount] == NULL) printf("Error 2");
+            strcpy(doc[kthParagraph][mthSentence][nthWord], word);
+            printf("%s : ", word);
+            nthWord++;
 
-            doc[paraCount][sentCount] = (char **)realloc(doc[paraCount][sentCount], (wordCount + 1) * sizeof(char *));
-            if (doc[paraCount][sentCount] == NULL) printf("Error 3");
-
-            doc[paraCount][sentCount][wordCount] = (char *)malloc((charCount + 1) * sizeof(char));
-            if (doc[paraCount][sentCount][wordCount] == NULL) printf("Error 4");
-
-            // Copy the word
-            strcpy(doc[paraCount][sentCount][wordCount], word);
-
-            if (ch == ' ') {
-                wordCount++;
-            } else if (ch == '.') {
-                wordCount = 0;
-                sentCount++;
-            }
-
-            // Clear word for next iteration
-            strcpy(word, "");
-            charCount = 0;
+            word[0] = '\0';
+            othChar = 0;
 
         } else {
-            word[charCount] = ch;
-            charCount++;
+            printf("%c ", ch);
+            word[othChar] = ch;
+            othChar++;
+        }
+
+        if (ch == '.') {
+            printf("=> Paragraph : %d, Sentence : %d, Words: %d\n", kthParagraph + 1, mthSentence + 1, nthWord);
+
+            word[0] = '\0';
+            othChar = 0;
+            nthWord = 0;
+            mthSentence++;
+
+            doc[kthParagraph] = (char ***)realloc(doc[kthParagraph], (mthSentence + 1) * sizeof(char **));
+            if (doc[kthParagraph] == NULL) printf("doc[kthParagraph]. Error\n");
+
+            doc[kthParagraph][mthSentence] = (char **)malloc((nthWord + 1) * sizeof(char *));
+            if (doc[kthParagraph][mthSentence] == NULL) printf("doc[kthParagraph][mthSentence]. Error\n");
         }
     }
 
@@ -93,25 +109,25 @@ char *get_input_text() {
 }
 
 void print_word(char *word) {
-    printf("\n------------------------Printing Word\n");
+    // printf("-------------------------- printing word\n");
 
     printf("%s", word);
 }
 
 void print_sentence(char **sentence) {
-    printf("\n------------------------Printing Sentence\n");
+    // printf("-------------------------- printing sentence\n");
 
     int word_count;
     scanf("%d", &word_count);
     for (int i = 0; i < word_count; i++) {
-        printf("%s", sentence[i]);
+        printf("%s ", sentence[i]);
         if (i != word_count - 1)
             printf(" ");
     }
 }
 
 void print_paragraph(char ***paragraph) {
-    printf("\n------------------------Printing Para\n");
+    // printf("-------------------------- printing paragraph\n");
 
     int sentence_count;
     scanf("%d", &sentence_count);
@@ -126,40 +142,43 @@ int main() {
     char ****document = get_document(text);
 
     int q;
+    printf("Enter number of Queries : ");
     scanf("%d", &q);
+
+    printf("Number of Queries : %d\n", q);
 
     while (q--) {
         int type;
-        printf("Enter Type : \n");
+        printf("Enter query type : ");
         scanf("%d", &type);
-        printf("Type is : %d\n", type);
+        printf("Query type is : %d\n", type);
 
         if (type == 3) {
-            printf("Query 3\n");
+            printf("* Entering query 3 *\n");
             int k, m, n;
             scanf("%d %d %d", &k, &m, &n);
             char *word = kth_word_in_mth_sentence_of_nth_paragraph(document, k, m, n);
             print_word(word);
-            printf("Query 3 Ends\n");
+            printf("\n* Exiting query 3 *\n");
         }
 
         else if (type == 2) {
-            printf("Query 2\n");
+            printf("* Entering query 2 *\n");
             int k, m;
             scanf("%d %d", &k, &m);
             char **sentence = kth_sentence_in_mth_paragraph(document, k, m);
             print_sentence(sentence);
-            printf("Query 2 Ends\n");
+            printf("\n* Exiting query 2 *\n");
 
         }
 
         else {
-            printf("Query 1\n");
+            printf("* Entering query 1 *\n");
             int k;
             scanf("%d", &k);
             char ***paragraph = kth_paragraph(document, k);
             print_paragraph(paragraph);
-            printf("Query 1 Ends\n");
+            printf("\n* Exiting query 1 *\n");
         }
         printf("\n");
     }
@@ -177,4 +196,12 @@ Learning pointers is more fun.It is good to have pointers.
 2 1 1
 4
 3 1 1 1
+//
+2
+this is not working.
+i do not know why.but i will figure.
+1
+1 1
+1
+4
 */

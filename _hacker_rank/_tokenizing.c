@@ -3,7 +3,8 @@
 #include <string.h>
 
 int main() {
-    char str[] = "She sells seashells by the seashore.The shells she sells are surely seashells.\nSo if she sells shells on the seashore, I'm sure she sells seashore shells.\nPeter Piper picked a peck of pickled peppers.How many pickled peppers did Peter Piper pick.\nQuick brown fox jumps over the lazy dog.";
+    // char str[] = "She sells seashells by the seashore.The shells she sells are surely seashells.\nSo if she sells shells on the seashore, I'm sure she sells seashore shells.\nPeter Piper picked a peck of pickled peppers.How many pickled peppers did Peter Piper pick.\nQuick brown fox jumps over the lazy dog.";
+    char str[] = "this is not working.\ni do not know why.but i will figure it out.";
     int len = strlen(str);
 
     // kthParagraph, mthSentence, nthWord, othChar
