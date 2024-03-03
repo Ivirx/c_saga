@@ -3,8 +3,8 @@
 #include <string.h>
 
 int main() {
-    char text[] = "She sells seashells by the seashore.The shells she sells are surely seashells.\nSo if she sells shells on the seashore, I'm sure she sells seashore shells.\nPeter Piper picked a peck of pickled peppers.How many pickled peppers did Peter Piper pick.\nQuick brown fox jumps over the lazy dog.";
-    // char text[] = "This is not working.\nI do not know why.But I will figure this out.";
+    // char text[] = "She sells seashells by the seashore.The shells she sells are surely seashells.\nSo if she sells shells on the seashore, I'm sure she sells seashore shells.\nPeter Piper picked a peck of pickled peppers.How many pickled peppers did Peter Piper pick.\nQuick brown fox jumps over the lazy dog.";
+    char text[] = "This is not working.\nI do not know why.But I will figure this out.";
     int len = strlen(text);
 
     // kthParagraph, mthSentence, nthWord, othChar
@@ -41,39 +41,42 @@ int main() {
             continue;
         }
 
-        if (ch == '.') {
-            // printf("%c : %d : %d : %d : %d : %d : %d\n", ch, i, len, kthParagraph, mthSentence, nthWord, othChar);
-
-            mthSentence++;
-            doc[kthParagraph] = (char ***)realloc(doc[kthParagraph], (mthSentence + 1) * sizeof(char **));
-            if (doc[kthParagraph] == NULL)
-                printf("---- Error : doc[kthParagraph] '.'\n");
-
-            nthWord = 0;
-            doc[kthParagraph][mthSentence] = (char **)malloc((nthWord + 1) * sizeof(char *));
-            if (doc[kthParagraph][mthSentence] == NULL)
-                printf("---- Error : doc[kthParagraph][mthSentence] '.'\n");
-
-            othChar = 0;
-            doc[kthParagraph][mthSentence][nthWord] = (char *)malloc((othChar + 1) * sizeof(char));
+        if (ch == '.' || ch == ' ') {
+            doc[kthParagraph][mthSentence][nthWord] = (char *)realloc(doc[kthParagraph][mthSentence][nthWord], (othChar + 1) * sizeof(char));
             if (doc[kthParagraph][mthSentence][nthWord] == NULL)
-                printf("---- Error : doc[kthParagraph][mthSentence][nthWord] '.'\n");
+                printf("---- Error : doc[kthParagraph][mthSentence][nthWord]\n");
+            doc[kthParagraph][mthSentence][nthWord][othChar] = '\0';
 
-            continue;
-        }
+            // if (ch == '.') {
+            if (ch == '.' && i != len - 1) {
+                mthSentence++;
+                doc[kthParagraph] = (char ***)realloc(doc[kthParagraph], (mthSentence + 1) * sizeof(char **));
+                if (doc[kthParagraph] == NULL)
+                    printf("---- Error : doc[kthParagraph] '.'\n");
 
-        if (ch == ' ') {
-            // printf("%c : %d : %d : %d : %d : %d : %d\n", ch, i, len, kthParagraph, mthSentence, nthWord, othChar);
+                nthWord = 0;
+                doc[kthParagraph][mthSentence] = (char **)malloc((nthWord + 1) * sizeof(char *));
+                if (doc[kthParagraph][mthSentence] == NULL)
+                    printf("---- Error : doc[kthParagraph][mthSentence] '.'\n");
 
-            nthWord++;
-            doc[kthParagraph][mthSentence] = (char **)realloc(doc[kthParagraph][mthSentence], (nthWord + 1) * sizeof(char *));
-            if (doc[kthParagraph][mthSentence] == NULL)
-                printf("---- Error : doc[kthParagraph][mthSentence] ' '\n");
+                othChar = 0;
+                doc[kthParagraph][mthSentence][nthWord] = (char *)malloc((othChar + 1) * sizeof(char));
+                if (doc[kthParagraph][mthSentence][nthWord] == NULL)
+                    printf("---- Error : doc[kthParagraph][mthSentence][nthWord] '.'\n");
+            }
 
-            othChar = 0;
-            doc[kthParagraph][mthSentence][nthWord] = (char *)malloc((othChar + 1) * sizeof(char));
-            if (doc[kthParagraph][mthSentence][nthWord] == NULL)
-                printf("---- Error : doc[kthParagraph][mthSentence][nthWord] ' '\n");
+            // if (ch == ' ') {
+            if (ch == ' ' && i != len - 1) {
+                nthWord++;
+                doc[kthParagraph][mthSentence] = (char **)realloc(doc[kthParagraph][mthSentence], (nthWord + 1) * sizeof(char *));
+                if (doc[kthParagraph][mthSentence] == NULL)
+                    printf("---- Error : doc[kthParagraph][mthSentence] ' '\n");
+
+                othChar = 0;
+                doc[kthParagraph][mthSentence][nthWord] = (char *)malloc((othChar + 1) * sizeof(char));
+                if (doc[kthParagraph][mthSentence][nthWord] == NULL)
+                    printf("---- Error : doc[kthParagraph][mthSentence][nthWord] ' '\n");
+            }
 
             continue;
         }
@@ -84,15 +87,77 @@ int main() {
         if (doc[kthParagraph][mthSentence][nthWord] == NULL)
             printf("---- Error : doc[kthParagraph][mthSentence][nthWord]\n");
         doc[kthParagraph][mthSentence][nthWord][othChar] = ch;
+        printf("%c => %d : %d : %d : %d\n", doc[kthParagraph][mthSentence][nthWord][othChar], kthParagraph, mthSentence, nthWord, othChar);
         othChar++;
     }
 
-    // printf("%d : %d : %d : %d\n", kthParagraph, mthSentence, nthWord, othChar);
+    printf("%d : %d : %d : %d\n", kthParagraph + 1, mthSentence + 1, nthWord + 1, othChar);
 
     free(doc);
 
     return 0;
 }
+
+/* int main() {
+    char text[] = "She sells seashells by the seashore.The shells she sells are surely seashells.\nSo if she sells shells on the seashore, I'm sure she sells seashore shells.\nPeter Piper picked a peck of pickled peppers.How many pickled peppers did Peter Piper pick.\nQuick brown fox jumps over the lazy dog.";
+    int len = strlen(text);
+
+    int kthParagraph = 0, mthSentence = 0, nthWord = 0, othChar = 0;
+
+    // Allocate memory for initial paragraph
+    char ****doc = (char ****)malloc(sizeof(char ***));
+    doc[0] = (char ***)malloc(sizeof(char **));
+    doc[0][0] = (char **)malloc(sizeof(char *));
+    doc[0][0][0] = (char *)malloc(sizeof(char));
+
+    for (int i = 0; i < len; i++) {
+        char ch = text[i];
+
+        if (ch == '\n' || ch == '.') {
+            if (ch == '\n') {
+                kthParagraph++;
+                mthSentence = 0;
+            } else {
+                mthSentence++;
+                nthWord = 0;
+            }
+
+            // Allocate memory for new sentence/word
+            doc = (char ****)realloc(doc, (kthParagraph + 1) * sizeof(char ***));
+            doc[kthParagraph] = (char ***)malloc((mthSentence + 1) * sizeof(char **));
+            doc[kthParagraph][mthSentence] = (char **)malloc((nthWord + 1) * sizeof(char *));
+            doc[kthParagraph][mthSentence][nthWord] = (char *)malloc((othChar + 1) * sizeof(char));
+            othChar = 0;
+        } else if (ch == ' ') {
+            nthWord++;
+            doc[kthParagraph][mthSentence] = (char **)realloc(doc[kthParagraph][mthSentence], (nthWord + 1) * sizeof(char *));
+            doc[kthParagraph][mthSentence][nthWord] = (char *)malloc((othChar + 1) * sizeof(char));
+            othChar = 0;
+        } else {
+            // Expand character buffer
+            doc[kthParagraph][mthSentence][nthWord] = (char *)realloc(doc[kthParagraph][mthSentence][nthWord], (othChar + 2) * sizeof(char));
+            doc[kthParagraph][mthSentence][nthWord][othChar] = ch;
+            doc[kthParagraph][mthSentence][nthWord][othChar + 1] = '\0';
+            othChar++;
+        }
+    }
+
+    printf("%d : %d : %d : %d\n", kthParagraph, mthSentence, nthWord, othChar);
+
+    // Free allocated memory
+    // for (int p = 0; p <= kthParagraph; p++) {
+    //     for (int s = 0; s <= mthSentence; s++) {
+    //         for (int w = 0; w <= nthWord; w++) {
+    //             free(doc[p][s][w]);
+    //         }
+    //         free(doc[p][s]);
+    //     }
+    //     free(doc[p]);
+    // }
+    // free(doc);
+
+    return 0;
+} */
 
 /* int main() {
     // char str[] = "She sells seashells by the seashore.The shells she sells are surely seashells.\nSo if she sells shells on the seashore, I'm sure she sells seashore shells.\nPeter Piper picked a peck of pickled peppers.How many pickled peppers did Peter Piper pick.\nQuick brown fox jumps over the lazy dog.";
