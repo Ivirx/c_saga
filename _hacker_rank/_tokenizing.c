@@ -2,6 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+void printSentence(char **sentence, int sent, int para);
+void printParagraph(char ***paragraph, int para);
+void printDoc(char ****doc);
+
 int main() {
     // char text[] = "She sells seashells by the seashore.The shells she sells are surely seashells.\nSo if she sells shells on the seashore, I'm sure she sells seashore shells.\nPeter Piper picked a peck of pickled peppers.How many pickled peppers did Peter Piper pick.\nQuick brown fox jumps over the lazy dog.";
     char text[] = "This is not working.\nI do not know why.But I will figure this out.";
@@ -39,6 +43,10 @@ int main() {
                 printf("---- Error : doc[kthParagraph][mthSentence][nthWord] '\\n'\n");
 
             continue;
+        }
+
+        if (ch == '.') {
+            printf("%d : %d : %d\n", kthParagraph + 1, mthSentence + 1, nthWord + 1);
         }
 
         if (ch == '.' || ch == ' ') {
@@ -81,21 +89,54 @@ int main() {
             continue;
         }
 
-        // printf("%c : %d : %d : %d : %d : %d : %d\n", ch, i, len, kthParagraph, mthSentence, nthWord, othChar);
-
         doc[kthParagraph][mthSentence][nthWord] = (char *)realloc(doc[kthParagraph][mthSentence][nthWord], (othChar + 1) * sizeof(char));
         if (doc[kthParagraph][mthSentence][nthWord] == NULL)
             printf("---- Error : doc[kthParagraph][mthSentence][nthWord]\n");
         doc[kthParagraph][mthSentence][nthWord][othChar] = ch;
-        printf("%c => %d : %d : %d : %d\n", doc[kthParagraph][mthSentence][nthWord][othChar], kthParagraph, mthSentence, nthWord, othChar);
+        // printf("%c => %d : %d : %d : %d\n", doc[kthParagraph][mthSentence][nthWord][othChar], kthParagraph, mthSentence, nthWord, othChar);
         othChar++;
     }
 
-    printf("%d : %d : %d : %d\n", kthParagraph + 1, mthSentence + 1, nthWord + 1, othChar);
+    // printf("%d : %d : %d : %d\n", kthParagraph + 1, mthSentence + 1, nthWord + 1, othChar);
+
+    printDoc(doc);
 
     free(doc);
 
     return 0;
+}
+
+void printSentence(char **sentence, int sentences, int paragraphs) {
+    int words;
+    printf("%d : %d : ", paragraphs + 1, sentences + 1);
+    scanf("%d", &words);
+
+    for (int i = 0; i < words; i++) {
+        printf("%s", sentence[i]);
+        if (i != words - 1)
+            printf(" ");
+    }
+}
+
+void printParagraph(char ***paragraph, int paragraphs) {
+    int sentences;
+    printf("%d : ", paragraphs + 1);
+    scanf("%d", &sentences);
+
+    for (int i = 0; i < sentences; i++) {
+        printSentence(*(paragraph + i), i, paragraphs);
+        printf(".\n");
+    }
+}
+
+void printDoc(char ****doc) {
+    int paragraphs;
+    printf("Number of paragraphs : ");
+    scanf("%d", &paragraphs);
+
+    for (int i = 0; i < paragraphs; i++) {
+        printParagraph(*(doc + i), i);
+    }
 }
 
 /* int main() {

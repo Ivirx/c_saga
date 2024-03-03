@@ -17,15 +17,49 @@ char ***kth_paragraph(char ****document, int k) {
     return document[k - 1];
 }
 
+void printSentence(char **sentence, int sentences, int paragraphs) {
+    int words;
+    printf("%d : %d : ", paragraphs + 1, sentences + 1);
+    scanf("%d", &words);
+
+    for (int i = 0; i < words; i++) {
+        printf("%s", sentence[i]);
+        if (i != words - 1)
+            printf(" ");
+    }
+}
+
+void printParagraph(char ***paragraph, int paragraphs) {
+    int sentences;
+    printf("%d : ", paragraphs + 1);
+    scanf("%d", &sentences);
+
+    for (int i = 0; i < sentences; i++) {
+        printSentence(*(paragraph + i), i, paragraphs);
+        printf(".\n");
+    }
+}
+
+void printDoc(char ****doc) {
+    int paragraphs;
+    printf("Number of paragraphs : ");
+    scanf("%d", &paragraphs);
+
+    for (int i = 0; i < paragraphs; i++) {
+        printParagraph(*(doc + i), i);
+    }
+}
+
 char ****get_document(char *text) {
     int len = strlen(text);
 
     // kthParagraph, mthSentence, nthWord, othChar
     int othChar = 0, nthWord = 0, mthSentence = 0, kthParagraph = 0;
-    char ch, ****doc = (char ****)malloc((kthParagraph + 1) * sizeof(char ***));
-    doc[kthParagraph] = (char ***)malloc((mthSentence + 1) * sizeof(char **));
-    doc[kthParagraph][mthSentence] = (char **)malloc((nthWord + 1) * sizeof(char *));
-    doc[kthParagraph][mthSentence][nthWord] = (char *)malloc((othChar + 1) * sizeof(char));
+    char ch;
+    char ****doc = (char ****)malloc(sizeof(char ***));
+    doc[0] = (char ***)malloc(sizeof(char **));
+    doc[0][0] = (char **)malloc(sizeof(char *));
+    doc[0][0][0] = (char *)malloc(sizeof(char));
 
     for (int i = 0; i < len; i++) {
         ch = text[i];
@@ -52,6 +86,10 @@ char ****get_document(char *text) {
                 printf("---- Error : doc[kthParagraph][mthSentence][nthWord] '\\n'\n");
 
             continue;
+        }
+
+        if (ch == '.') {
+            printf("%d : %d : %d\n", kthParagraph + 1, mthSentence + 1, nthWord + 1);
         }
 
         if (ch == '.' || ch == ' ') {
@@ -94,8 +132,6 @@ char ****get_document(char *text) {
             continue;
         }
 
-        // printf("%c : %d : %d : %d : %d : %d : %d\n", ch, i, len, kthParagraph, mthSentence, nthWord, othChar);
-
         doc[kthParagraph][mthSentence][nthWord] = (char *)realloc(doc[kthParagraph][mthSentence][nthWord], (othChar + 1) * sizeof(char));
         if (doc[kthParagraph][mthSentence][nthWord] == NULL)
             printf("---- Error : doc[kthParagraph][mthSentence][nthWord]\n");
@@ -104,7 +140,7 @@ char ****get_document(char *text) {
         othChar++;
     }
 
-    printf("%d : %d : %d : %d\n", kthParagraph + 1, mthSentence + 1, nthWord + 1, othChar);
+    // printDoc(doc);
 
     return doc;
 }
@@ -129,36 +165,26 @@ char *get_input_text() {
 }
 
 void print_word(char *word) {
-    printf("-------------------------- printing word\n");
-
     printf("%s", word);
-
-    printf("\n");
 }
 
 void print_sentence(char **sentence) {
-    printf("-------------------------- printing sentence : No. of Words in it : ");
-
     int word_count;
     scanf("%d", &word_count);
     for (int i = 0; i < word_count; i++) {
-        printf("%s ", sentence[i]);
+        printf("%s", sentence[i]);
         if (i != word_count - 1)
             printf(" ");
     }
-    printf("\n");
 }
 
 void print_paragraph(char ***paragraph) {
-    printf("-------------------------- printing paragraph : No. of Sentences in it : ");
-
     int sentence_count;
     scanf("%d", &sentence_count);
     for (int i = 0; i < sentence_count; i++) {
         print_sentence(*(paragraph + i));
         printf(".");
     }
-    printf("\n");
 }
 
 int main() {
@@ -169,13 +195,10 @@ int main() {
     printf("Enter number of Queries : ");
     scanf("%d", &q);
 
-    printf("Number of Queries : %d\n", q);
-
     while (q--) {
         int type;
         printf("Enter query type : ");
         scanf("%d", &type);
-        printf("Query type is : %d\n", type);
 
         if (type == 3) {
             printf("* Entering query 3 *\n");
@@ -242,8 +265,16 @@ Quick brown fox jumps over the lazy dog.This should work fine.I hope it works.
 2
 8
 8
-2 4 2
+2 2 4
 4
-1 2 1 8
-1 4 1 1
+1 3 2 3
+//
+4
+She sells seashells by the seashore.The shells she sells are surely seashells.
+So if she sells shells on the seashore, I'm sure she sells seashore shells.
+Peter Piper picked a peck of pickled peppers.How many pickled peppers did Peter Piper pick.
+Quick brown fox jumps over the lazy dog.This should work fine.I hope it works.
+1
+2 3 1
+8
 */
