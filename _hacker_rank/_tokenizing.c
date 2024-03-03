@@ -3,6 +3,98 @@
 #include <string.h>
 
 int main() {
+    char text[] = "She sells seashells by the seashore.The shells she sells are surely seashells.\nSo if she sells shells on the seashore, I'm sure she sells seashore shells.\nPeter Piper picked a peck of pickled peppers.How many pickled peppers did Peter Piper pick.\nQuick brown fox jumps over the lazy dog.";
+    // char text[] = "This is not working.\nI do not know why.But I will figure this out.";
+    int len = strlen(text);
+
+    // kthParagraph, mthSentence, nthWord, othChar
+    int othChar = 0, nthWord = 0, mthSentence = 0, kthParagraph = 0;
+    char ch, ****doc = (char ****)malloc((kthParagraph + 1) * sizeof(char ***));
+    doc[kthParagraph] = (char ***)malloc((mthSentence + 1) * sizeof(char **));
+    doc[kthParagraph][mthSentence] = (char **)malloc((nthWord + 1) * sizeof(char *));
+    doc[kthParagraph][mthSentence][nthWord] = (char *)malloc((othChar + 1) * sizeof(char));
+
+    for (int i = 0; i < len; i++) {
+        ch = text[i];
+
+        if (ch == '\n') {
+            kthParagraph++;
+            doc = (char ****)realloc(doc, (kthParagraph + 1) * sizeof(char ***));
+            if (doc[kthParagraph] == NULL)
+                printf("---- Error : doc[kthParagraph] '\\n'\n");
+
+            mthSentence = 0;
+            doc[kthParagraph] = (char ***)malloc((mthSentence + 1) * sizeof(char **));
+            if (doc[kthParagraph] == NULL)
+                printf("---- Error : doc[kthParagraph] '\\n'\n");
+
+            nthWord = 0;
+            doc[kthParagraph][mthSentence] = (char **)malloc((nthWord + 1) * sizeof(char *));
+            if (doc[kthParagraph][mthSentence] == NULL)
+                printf("---- Error : doc[kthParagraph][mthSentence] '\\n'\n");
+
+            othChar = 0;
+            doc[kthParagraph][mthSentence][nthWord] = (char *)malloc((othChar + 1) * sizeof(char));
+            if (doc[kthParagraph][mthSentence][nthWord] == NULL)
+                printf("---- Error : doc[kthParagraph][mthSentence][nthWord] '\\n'\n");
+
+            continue;
+        }
+
+        if (ch == '.') {
+            // printf("%c : %d : %d : %d : %d : %d : %d\n", ch, i, len, kthParagraph, mthSentence, nthWord, othChar);
+
+            mthSentence++;
+            doc[kthParagraph] = (char ***)realloc(doc[kthParagraph], (mthSentence + 1) * sizeof(char **));
+            if (doc[kthParagraph] == NULL)
+                printf("---- Error : doc[kthParagraph] '.'\n");
+
+            nthWord = 0;
+            doc[kthParagraph][mthSentence] = (char **)malloc((nthWord + 1) * sizeof(char *));
+            if (doc[kthParagraph][mthSentence] == NULL)
+                printf("---- Error : doc[kthParagraph][mthSentence] '.'\n");
+
+            othChar = 0;
+            doc[kthParagraph][mthSentence][nthWord] = (char *)malloc((othChar + 1) * sizeof(char));
+            if (doc[kthParagraph][mthSentence][nthWord] == NULL)
+                printf("---- Error : doc[kthParagraph][mthSentence][nthWord] '.'\n");
+
+            continue;
+        }
+
+        if (ch == ' ') {
+            // printf("%c : %d : %d : %d : %d : %d : %d\n", ch, i, len, kthParagraph, mthSentence, nthWord, othChar);
+
+            nthWord++;
+            doc[kthParagraph][mthSentence] = (char **)realloc(doc[kthParagraph][mthSentence], (nthWord + 1) * sizeof(char *));
+            if (doc[kthParagraph][mthSentence] == NULL)
+                printf("---- Error : doc[kthParagraph][mthSentence] ' '\n");
+
+            othChar = 0;
+            doc[kthParagraph][mthSentence][nthWord] = (char *)malloc((othChar + 1) * sizeof(char));
+            if (doc[kthParagraph][mthSentence][nthWord] == NULL)
+                printf("---- Error : doc[kthParagraph][mthSentence][nthWord] ' '\n");
+
+            continue;
+        }
+
+        // printf("%c : %d : %d : %d : %d : %d : %d\n", ch, i, len, kthParagraph, mthSentence, nthWord, othChar);
+
+        doc[kthParagraph][mthSentence][nthWord] = (char *)realloc(doc[kthParagraph][mthSentence][nthWord], (othChar + 1) * sizeof(char));
+        if (doc[kthParagraph][mthSentence][nthWord] == NULL)
+            printf("---- Error : doc[kthParagraph][mthSentence][nthWord]\n");
+        doc[kthParagraph][mthSentence][nthWord][othChar] = ch;
+        othChar++;
+    }
+
+    // printf("%d : %d : %d : %d\n", kthParagraph, mthSentence, nthWord, othChar);
+
+    free(doc);
+
+    return 0;
+}
+
+/* int main() {
     // char str[] = "She sells seashells by the seashore.The shells she sells are surely seashells.\nSo if she sells shells on the seashore, I'm sure she sells seashore shells.\nPeter Piper picked a peck of pickled peppers.How many pickled peppers did Peter Piper pick.\nQuick brown fox jumps over the lazy dog.";
     char str[] = "this is not working.\ni do not know why.but i will figure it out.";
     int len = strlen(str);
@@ -71,7 +163,7 @@ int main() {
     free(word);
 
     return 0;
-}
+} */
 
 // paragraph tokenizier
 /* int main() {
