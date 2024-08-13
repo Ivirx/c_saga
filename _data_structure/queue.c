@@ -12,6 +12,7 @@ struct Queue *generateQueue(int size);
 void push(int value, struct Queue *queue);
 void pop(struct Queue *queue);
 void display(struct Queue *queue);
+void search(int value, struct Queue *queue);
 
 int main() {
     struct Queue *queue = generateQueue(6);
@@ -31,9 +32,16 @@ int main() {
     pop(queue);
     display(queue);
 
+    push(2, queue);
     push(4, queue);
+    push(1, queue);
     push(3, queue);
     display(queue);
+
+    search(3, queue);
+    search(99, queue);
+    search(2, queue);
+    search(5, queue);
 
     return 0;
 }
@@ -89,4 +97,31 @@ void display(struct Queue *queue) {
         printf("%d\t", queue->arr[i % queue->size]);
     }
     printf("\n");
+}
+
+void search(int value, struct Queue *queue) {
+    if (queue->nodes == 0) {
+        printf("Queue is empty, nothing to search.\n");
+        return;
+    }
+
+    // printf("Size : %d, At : %d, Nodes : %d.\n", queue->size, queue->at, queue->nodes);
+
+    int flag = 0;
+    for (int i = queue->at; i < queue->at + queue->nodes; i++) {
+        if (queue->arr[i % queue->size] == value) {
+            if (flag == 0)
+                printf("%d PRESENT at ", value);
+            else
+                printf(", ");
+
+            printf("%d", i - queue->at);
+            flag = 1;
+        }
+    }
+
+    if (flag == 1)
+        printf(".\n");
+    else
+        printf("%d NOT PRESENT!\n", value);
 }
