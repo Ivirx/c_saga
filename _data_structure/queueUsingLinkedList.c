@@ -7,32 +7,33 @@ struct Queue {
 };
 
 struct Queue *generateQueue();
-void push(int value, struct Queue **queue);
-void pop(struct Queue **queue);
+void enqueue(int value, struct Queue **queue);
+void dequeue(struct Queue **queue);
 void display(struct Queue *queue);
 void search(int value, struct Queue *queue);
 // TODO : Delete the queue
+int isEmpty(struct Queue *queue);
 
 int main() {
     struct Queue *queue = generateQueue();
 
-    push(7, &queue);
-    push(8, &queue);
-    push(2, &queue);
+    enqueue(7, &queue);
+    enqueue(8, &queue);
+    enqueue(2, &queue);
     display(queue);
 
-    pop(&queue);
+    dequeue(&queue);
     display(queue);
-    pop(&queue);
-    pop(&queue);
-    pop(&queue);
+    dequeue(&queue);
+    dequeue(&queue);
+    dequeue(&queue);
 
     display(queue);
 
-    push(6, &queue);
-    push(8, &queue);
-    push(9, &queue);
-    push(2, &queue);
+    enqueue(6, &queue);
+    enqueue(8, &queue);
+    enqueue(9, &queue);
+    enqueue(2, &queue);
     display(queue);
 
     search(9, queue);
@@ -47,8 +48,8 @@ struct Queue *generateQueue() {
     return queue;
 }
 
-void push(int value, struct Queue **queue) {
-    if (*queue == NULL) {
+void enqueue(int value, struct Queue **queue) {
+    if (isEmpty(*queue)) {
         struct Queue *newNode = (struct Queue *)malloc(sizeof(struct Queue));
         newNode->data = value;
         newNode->next = NULL;
@@ -70,8 +71,8 @@ void push(int value, struct Queue **queue) {
     current->next = newNode;
 }
 
-void pop(struct Queue **queue) {
-    if (*queue == NULL) {
+void dequeue(struct Queue **queue) {
+    if (isEmpty(*queue)) {
         printf("Underflow, queue is empty.\n");
         return;
     }
@@ -83,7 +84,7 @@ void pop(struct Queue **queue) {
 }
 
 void display(struct Queue *queue) {
-    if (queue == NULL) {
+    if (isEmpty(queue)) {
         printf("Queue is empty.\n");
         return;
     }
@@ -97,7 +98,7 @@ void display(struct Queue *queue) {
 }
 
 void search(int value, struct Queue *queue) {
-    if (queue == NULL) {
+    if (isEmpty(queue)) {
         printf("queue is empty, nothing to search.\n");
         return;
     }
@@ -123,4 +124,8 @@ void search(int value, struct Queue *queue) {
         printf(".\n");
     else
         printf("%d NOT PRESENT!\n", value);
+}
+
+int isEmpty(struct Queue *queue) {
+    return queue == NULL;
 }

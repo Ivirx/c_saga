@@ -9,33 +9,35 @@ struct Queue {
 };
 
 struct Queue *generateQueue(int size);
-void push(int value, struct Queue *queue);
-void pop(struct Queue *queue);
+void enqueue(int value, struct Queue *queue);
+void dequeue(struct Queue *queue);
 void display(struct Queue *queue);
 void search(int value, struct Queue *queue);
+int isFull(struct Queue *queue);
+int isEmpty(struct Queue *queue);
 
 int main() {
     struct Queue *queue = generateQueue(6);
 
-    push(4, queue);
-    push(9, queue);
-    push(1, queue);
-    push(6, queue);
-    push(3, queue);
-    push(5, queue);
+    enqueue(4, queue);
+    enqueue(9, queue);
+    enqueue(1, queue);
+    enqueue(6, queue);
+    enqueue(3, queue);
+    enqueue(5, queue);
     display(queue);
 
-    pop(queue);
-    pop(queue);
-    pop(queue);
-    pop(queue);
-    pop(queue);
+    dequeue(queue);
+    dequeue(queue);
+    dequeue(queue);
+    dequeue(queue);
+    dequeue(queue);
     display(queue);
 
-    push(2, queue);
-    push(4, queue);
-    push(1, queue);
-    push(3, queue);
+    enqueue(2, queue);
+    enqueue(4, queue);
+    enqueue(1, queue);
+    enqueue(3, queue);
     display(queue);
 
     search(3, queue);
@@ -50,14 +52,14 @@ struct Queue *generateQueue(int size) {
     struct Queue *queue = (struct Queue *)malloc(sizeof(struct Queue));
     queue->arr = (int *)malloc(sizeof(int) * size);
     queue->size = size;
-    queue->at = -1;
+    queue->at = 0;
     queue->nodes = 0;
 
     return queue;
 }
 
-void push(int value, struct Queue *queue) {
-    if (queue->nodes == 0) {
+void enqueue(int value, struct Queue *queue) {
+    if (isEmpty(queue)) {
         queue->arr[0] = value;
         queue->at = 0;
         queue->nodes += 1;
@@ -65,7 +67,7 @@ void push(int value, struct Queue *queue) {
         return;
     }
 
-    if (queue->nodes == queue->size) {
+    if (isFull(queue)) {
         printf("Overflow, queue is full.\n");
         return;
     }
@@ -74,8 +76,8 @@ void push(int value, struct Queue *queue) {
     queue->nodes += 1;
 }
 
-void pop(struct Queue *queue) {
-    if (queue->nodes == 0) {
+void dequeue(struct Queue *queue) {
+    if (isEmpty(queue)) {
         printf("Underflow, queue is empty.\n");
         return;
     }
@@ -86,7 +88,7 @@ void pop(struct Queue *queue) {
 }
 
 void display(struct Queue *queue) {
-    if (queue->nodes == 0) {
+    if (isEmpty(queue)) {
         printf("Queue is empty.\n");
         return;
     }
@@ -100,7 +102,7 @@ void display(struct Queue *queue) {
 }
 
 void search(int value, struct Queue *queue) {
-    if (queue->nodes == 0) {
+    if (isEmpty(queue)) {
         printf("Queue is empty, nothing to search.\n");
         return;
     }
@@ -124,4 +126,12 @@ void search(int value, struct Queue *queue) {
         printf(".\n");
     else
         printf("%d NOT PRESENT!\n", value);
+}
+
+int isFull(struct Queue *queue) {
+    return queue->nodes == queue->size;
+}
+
+int isEmpty(struct Queue *queue) {
+    return !(queue->nodes);
 }
