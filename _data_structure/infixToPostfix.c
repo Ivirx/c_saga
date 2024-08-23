@@ -1,3 +1,4 @@
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -19,7 +20,7 @@ void pushStack(char data, struct Infix *stack);
 char popStack(struct Infix *stack);
 char peekStack(struct Infix *stack);
 
-int isLower(char toBeInserted, char alreadyIn);
+int isLower(char alreadyIn, char toBeInserted);
 
 int main() {
     struct Infix *infix = (struct Infix *)malloc(sizeof(struct Infix));
@@ -53,7 +54,7 @@ int main() {
         }
 
         if (symbol == '+' || symbol == '-' || symbol == '*' || symbol == '/' || symbol == '^' || symbol == '(') {
-            while (symbol != '(' && isLower(symbol, peekStack(infix))) {
+            while (symbol != '(' && isLower(peekStack(infix), symbol)) {
                 pushExpression(popStack(infix), infix);
             }
             pushStack(symbol, infix);
@@ -69,6 +70,26 @@ int main() {
 
     return 0;
 }
+
+/*
+
+Enter the Infix Expression : (a+b)*c/d+e^f/g
+Entered Infix Expression is : ((a+b)*c/d+e^f/g)
+Postfix Expression is : a b + c * d / e f ^ g / +
+
+Enter the Infix Expression : a+((b+c)+(d+e)*f)/g
+Entered Infix Expression is : (a+((b+c)+(d+e)*f)/g)
+Postfix Expression is : a b c + d e + f * + g / +
+
+Enter the Infix Expression : a+(b*c-(d/e^f)*g)*h
+Entered Infix Expression is : (a+(b*c-(d/e^f)*g)*h)
+Postfix Expression is : a b c * d e f ^ / g * - h * +
+
+Enter the Infix Expression : a-b/(c*d^e)
+Entered Infix Expression is : (a-b/(c*d^e))
+Postfix Expression is : a b c d e ^ * / -
+
+*/
 
 void pushExpression(char data, struct Infix *stack) {
     if (stack->experssionTop == stack->size - 1) {
@@ -137,7 +158,7 @@ char peekStack(struct Infix *stack) {
 }
 
 // ^ * / + -
-int isLower(char toBeInserted, char alreadyIn) {
+int isLower(char alreadyIn, char toBeInserted) {
     if (alreadyIn == '(') return 0;
 
     if (toBeInserted == alreadyIn) return 1;
@@ -152,3 +173,35 @@ int isLower(char toBeInserted, char alreadyIn) {
 
     return 0;
 }
+
+/* void evaluateEquation(char symbol, struct Infix *infix) {
+    int a = popExpression(infix) - '0';
+    int b = popExpression(infix) - '0';
+
+    printf("%c, %d, %d\n", symbol, b, a);
+
+    switch (symbol) {
+        case '+':
+            printf("%d + %d = %d\n", b, a, b + a);
+            pushExpression(b + a, infix);
+            break;
+        case '-':
+            printf("%d - %d = %d\n", b, a, b - a);
+            pushExpression(b - a, infix);
+            break;
+        case '*':
+            printf("%d * %d = %d\n", b, a, b * a);
+            pushExpression(b * a, infix);
+            break;
+        case '/':
+            printf("%d / %d = %d\n", b, a, b / a);
+            pushExpression(b / a, infix);
+            break;
+        case '^':
+            printf("%d ^ %d = %d\n", b, a, pow(b, a));
+            pushExpression(pow(b, a), infix);
+            break;
+        default:
+            printf("Invalid operator\n");
+    }
+} */
