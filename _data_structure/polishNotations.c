@@ -2,89 +2,85 @@
 #include <stdlib.h>
 #include <string.h>
 
-typedef struct PolishNotation {
-    char *infixNotation;
+typedef struct Stack {
+    char *type;
+    char **stack;
+    int top;
+} Stack;
+
+typedef struct PolishNotations {
+    char *infix;
     int length;
 
-    char **stack;
-    int topOfStack;
+    Stack *stack;
+    Stack *postfix;
+    Stack *prefix;
+} PNs;
 
-    char **postfixNotation;
-    int topOfPostfixNotation;
+void init(PNs *n);
+void initStack(char *type, Stack **s, int length);
 
-    char **prefixNotation;
-    int topOfPrefixNotation;
-} PN;
+void toPostfix(PNs *n);
+void toPrefix(PNs *n);
 
-void takeUserInput(PN *n);
-void infixToPostfix(PN *n);
-void infixToPrefix(PN *n);
-
-void pushStack(char *symbol, PN *n);
-char *popStack(PN *n);
-char *peekStack(PN *n);
-void displayStack(PN *n);
-
-void pushPostfixNotation(char *digits, PN *n);
-char *popPostfixNotation(PN *n);
-char *peekPostfixNotation(PN *n);
-void displayPostfixNotation(PN *n);
-
-void pushPrefixNotation(char *digits, PN *n);
-char *popPrefixNotation(PN *n);
-char *peekPrefixNotation(PN *n);
-void displayPrefixNotation(PN *n);
+void push(char *data, Stack *s, int length);
+char *pop(Stack *s);
+char *peek(Stack *s);
+void display(Stack *s);
 
 int isLower(char alreadyIn, char toBeInserted);
 int isSymbol(char symbol);
 
 int main() {
-    PN *notation = (PN *)malloc(sizeof(PN));
+    PNs *notation = (PNs *)malloc(sizeof(PNs));
+    init(notation);
 
-    takeUserInput(notation);
+    toPostfix(notation);
+    display(notation->postfix);
 
-    infixToPostfix(notation);
-    displayPostfixNotation(notation);
-
-    infixToPrefix(notation);
-    displayPrefixNotation(notation);
+    toPrefix(notation);
+    display(notation->prefix);
 
     return 0;
 }
 
-void takeUserInput(PN *n) {
+void init(PNs *n) {
     char input[99];
     printf("Enter the expression : ");
     scanf("%s", input);
 
-    n->infixNotation = (char *)malloc(sizeof(char) * (strlen(input) + 3));  // (expression)\0
-    sprintf(n->infixNotation, "(%s)", input);
-    n->length = strlen(n->infixNotation);
-    printf("Expression : %s\n", n->infixNotation);
+    n->infix = (char *)malloc(sizeof(char) * (strlen(input) + 3));  // (expression)\0
+    sprintf(n->infix, "(%s)", input);
+    n->length = strlen(n->infix);
+    printf("Expression : %s\n", n->infix);
 
-    // initializing stacks
-    n->stack = (char **)malloc(sizeof(char *) * n->length);
-    n->topOfStack = -1;
-    n->postfixNotation = (char **)malloc(sizeof(char *) * n->length);
-    n->topOfPostfixNotation = -1;
-    n->prefixNotation = (char **)malloc(sizeof(char *) * n->length);
-    n->topOfPrefixNotation = -1;
+    // Initializing Stacks
+    initStack("Stack", &(n->stack), n->length);
+    initStack("Postfix Notation", &(n->postfix), n->length);
+    initStack("Prefix Notation ", &(n->prefix), n->length);
 }
 
-void infixToPostfix(PN *n) {
+void initStack(char *type, Stack **s, int length) {
+    *s = (Stack *)malloc(sizeof(Stack));
+    (*s)->type = (char *)malloc(sizeof(char) * (strlen(type) + 1));
+    strcpy((*s)->type, type);
+    (*s)->stack = (char **)malloc(sizeof(char *) * length);
+    (*s)->top = -1;
+}
+
+void toPostfix(PNs *n) {
     char symbol, digits[9], operator[2];
     int position = -1;
     operator[1] = '\0';
 
     for (int i = 0; i < n->length; i++) {
-        symbol = n->infixNotation[i];
+        symbol = n->infix[i];
 
         if (symbol == ')') {
-            symbol = popStack(n)[0];
-            while (symbol != '(' || symbol == '!') {
-                operator[0] = symbol;
-                pushPostfixNotation(operator, n);
-                symbol = popStack(n)[0];
+            operator[0] = pop(n->stack)[0];
+            while (operator[0] != '(' || operator[0] == '!') {
+                push(operator, n->postfix, n->length);
+                operator[0] = pop(n->stack)[0];
             }
             continue;
         }
@@ -93,44 +89,45 @@ void infixToPostfix(PN *n) {
             position++;
             digits[position] = symbol;
 
-            if (isSymbol(n->infixNotation[i + 1])) {
+            if (isSymbol(n->infix[i + 1])) {
                 // push into the postfix notation if next symbol is not a digit
                 position++;
                 digits[position] = '\0';
-                pushPostfixNotation(digits, n);
+                push(digits, n->postfix, n->length);
+
+                // resetting digits
                 position = -1;
                 digits[0] = '\0';
             }
 
         } else {
-            while (symbol != '(' && isLower(peekStack(n)[0], symbol)) {
-                operator[0] = popStack(n)[0];
-                pushPostfixNotation(operator, n);
+            while (symbol != '(' && isLower(peek(n->stack)[0], symbol)) {
+                operator[0] = pop(n->stack)[0];
+                push(operator, n->postfix, n->length);
             }
             operator[0] = symbol;
-            pushStack(operator, n);
+            push(operator, n->stack, n->length);
         }
     }
 }
 
-void infixToPrefix(PN *n) {
+void toPrefix(PNs *n) {
     char symbol, digits[9], operator[2];
     int position = -1;
     operator[1] = '\0';
 
     for (int i = n->length - 1; i >= 0; i--) {
-        symbol = n->infixNotation[i];
+        symbol = n->infix[i];
         if (symbol == ')')
             symbol = '(';
         else if (symbol == '(')
             symbol = ')';
 
         if (symbol == ')') {
-            symbol = popStack(n)[0];
-            while (symbol != '(' || symbol == '!') {
-                operator[0] = symbol;
-                pushPrefixNotation(operator, n);
-                symbol = popStack(n)[0];
+            operator[0] = pop(n->stack)[0];
+            while (operator[0] != '(' || operator[0] == '!') {
+                push(operator, n->prefix, n->length);
+                operator[0] = pop(n->stack)[0];
             }
             continue;
         }
@@ -139,144 +136,88 @@ void infixToPrefix(PN *n) {
             position++;
             digits[position] = symbol;
 
-            if (isSymbol(n->infixNotation[i + 1])) {
+            if (isSymbol(n->infix[i - 1])) {
                 // push into the postfix notation if next symbol is not a digit
+
+                int start = 0, end = position;
+                while (start < end) {
+                    char temp = digits[start];
+                    digits[start] = digits[end];
+                    digits[end] = temp;
+
+                    start++;
+                    end--;
+                }
+
                 position++;
                 digits[position] = '\0';
-                pushPrefixNotation(digits, n);
+                push(digits, n->prefix, n->length);
+
+                // resetting digits
                 position = -1;
                 digits[0] = '\0';
             }
 
         } else {
-            while (symbol != '(' && isLower(peekStack(n)[0], symbol)) {
-                operator[0] = popStack(n)[0];
-                pushPrefixNotation(operator, n);
+            while (symbol != '(' && isLower(peek(n->stack)[0], symbol)) {
+                operator[0] = pop(n->stack)[0];
+                push(operator, n->prefix, n->length);
             }
             operator[0] = symbol;
-            pushStack(operator, n);
+            push(operator, n->stack, n->length);
         }
     }
+
+    int start = 0, end = n->prefix->top;
+    while (start < end) {
+        char *temp = n->prefix->stack[start];
+        n->prefix->stack[start] = n->prefix->stack[end];
+        n->prefix->stack[end] = temp;
+
+        start++;
+        end--;
+    }
 }
 
-void pushStack(char *symbol, PN *n) {
-    if (n->topOfStack == n->length - 1) {
-        printf("Overflow, stack is full.\n");
+void push(char *data, Stack *s, int length) {
+    if (s->top == length - 1) {
+        printf("Overflow, %s is full.\n", s->type);
         return;
     }
 
-    n->topOfStack += 1;
-    n->stack[n->topOfStack] = (char *)malloc(sizeof(char) * (strlen(symbol) + 1));
-    strcpy(n->stack[n->topOfStack], symbol);
+    s->top += 1;
+    s->stack[s->top] = (char *)malloc(sizeof(char) * (strlen(data) + 1));
+    strcpy(s->stack[s->top], data);
 }
-char *popStack(PN *n) {
-    if (n->topOfStack == -1) {
-        printf("Underflow, stack is empty.\n");
+
+char *pop(Stack *s) {
+    if (s->top == -1) {
+        printf("Underflow, %s is empty.\n", s->type);
         return "!";
     }
 
-    n->topOfStack -= 1;
-    return n->stack[n->topOfStack + 1];
+    s->top -= 1;
+    return s->stack[s->top + 1];
 }
-char *peekStack(PN *n) {
-    if (n->topOfStack == -1) {
-        printf("Underflow, stack is empty.\n");
+
+char *peek(Stack *s) {
+    if (s->top == -1) {
+        printf("Underflow, %s is empty.\n", s->type);
         return "!";
     }
 
-    return n->stack[n->topOfStack];
+    return s->stack[s->top];
 }
-void displayStack(PN *n) {
-    if (n->topOfStack == -1) {
-        printf("Underflow, stack is empty.\n");
+
+void display(Stack *s) {
+    if (s->top == -1) {
+        printf("Underflow, %s is empty.\n", s->type);
         return;
     }
 
-    printf("Stack is : ");
-    for (int i = 0; i <= n->topOfStack; i++) {
-        printf("%s ", n->stack[i]);
-    }
-
-    printf("\n");
-}
-
-void pushPostfixNotation(char *digits, PN *n) {
-    if (n->topOfPostfixNotation == n->length - 1) {
-        printf("Overflow, Postfix Notation is full.\n");
-        return;
-    }
-
-    n->topOfPostfixNotation += 1;
-    n->postfixNotation[n->topOfPostfixNotation] = (char *)malloc(sizeof(char) * (strlen(digits) + 1));
-    strcpy(n->postfixNotation[n->topOfPostfixNotation], digits);
-}
-char *popPostfixNotation(PN *n) {
-    if (n->topOfPostfixNotation == -1) {
-        printf("Underflow, Postfix Notation is empty.\n");
-        return NULL;
-    }
-
-    n->topOfPostfixNotation -= 1;
-    return n->postfixNotation[n->topOfPostfixNotation + 1];
-}
-char *peekPostfixNotation(PN *n) {
-    if (n->topOfPostfixNotation == -1) {
-        printf("Underflow, Postfix Notation is empty.\n");
-        return NULL;
-    }
-
-    return n->postfixNotation[n->topOfPostfixNotation];
-}
-void displayPostfixNotation(PN *n) {
-    if (n->topOfPostfixNotation == -1) {
-        printf("Underflow, Postfix Notation is empty.\n");
-        return;
-    }
-
-    printf("Postfix Expression is : ");
-    for (int i = 0; i <= n->topOfPostfixNotation; i++) {
-        printf("%s ", n->postfixNotation[i]);
-    }
-
-    printf("\n");
-}
-
-void pushPrefixNotation(char *digits, PN *n) {
-    if (n->topOfPrefixNotation == n->length - 1) {
-        printf("Overflow, Prefix Notation is full.\n");
-        return;
-    }
-
-    n->topOfPrefixNotation += 1;
-    n->prefixNotation[n->topOfPrefixNotation] = (char *)malloc(sizeof(char) * (strlen(digits) + 1));
-    strcpy(n->prefixNotation[n->topOfPrefixNotation], digits);
-}
-char *popPrefixNotation(PN *n) {
-    if (n->topOfPrefixNotation == -1) {
-        printf("Underflow, Prefix Notation is empty.\n");
-        return NULL;
-    }
-
-    n->topOfPrefixNotation -= 1;
-    return n->prefixNotation[n->topOfPrefixNotation + 1];
-}
-char *peekPrefixNotation(PN *n) {
-    if (n->topOfPrefixNotation == -1) {
-        printf("Underflow, Prefix Notation is empty.\n");
-        return NULL;
-    }
-
-    return n->prefixNotation[n->topOfPrefixNotation];
-}
-void displayPrefixNotation(PN *n) {
-    if (n->topOfPrefixNotation == -1) {
-        printf("Underflow, Prefix Notation is empty.\n");
-        return;
-    }
-
-    printf("Prefix Expression is : ");
-    for (int i = n->topOfPrefixNotation; i >= 0; i--) {
-        printf("%s ", n->prefixNotation[i]);
+    printf("%s is : ", s->type);
+    for (int i = 0; i <= s->top; i++) {
+        printf("%s ", s->stack[i]);
     }
 
     printf("\n");
