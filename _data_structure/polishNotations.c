@@ -1,3 +1,6 @@
+#include <ctype.h>
+#include <math.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -23,6 +26,8 @@ void initStack(char *type, Stack **s, int length);
 void toPostfix(PNs *n);
 void toPrefix(PNs *n);
 
+void evaluatePostfix(Stack *s);
+
 void push(char *data, Stack *s, int length);
 char *pop(Stack *s);
 char *peek(Stack *s);
@@ -40,6 +45,8 @@ int main() {
 
     toPrefix(notation);
     display(notation->prefix);
+
+    evaluatePostfix(notation->postfix);
 
     return 0;
 }
@@ -177,6 +184,85 @@ void toPrefix(PNs *n) {
         start++;
         end--;
     }
+}
+
+double stringToFloat(const char *str) {
+    double result = 0.0;
+    double fraction = 0.0;
+    bool isNegative = false;
+    bool isFraction = false;
+    double divisor = 10.0;
+
+    // Check for sign
+    if (*str == '-') {
+        isNegative = true;
+        str++;
+    } else if (*str == '+') {
+        str++;
+    }
+
+    // Convert the string
+    while (*str) {
+        if (isdigit(*str)) {
+            if (isFraction) {
+                fraction += (*str - '0') / divisor;
+                divisor *= 10.0;
+            } else {
+                result = result * 10.0 + (*str - '0');
+            }
+        } else if (*str == '.') {
+            if (isFraction) return 0.0;  // Invalid format (multiple decimals)
+            isFraction = true;
+        } else {
+            break;  // Invalid character
+        }
+        str++;
+    }
+
+    result += fraction;
+    return isNegative ? -result : result;
+}
+
+void evaluatePostfix(Stack *s) {
+    float *result = (float *)malloc(sizeof(float) * s->top), a, b;
+    int top = -1;
+    char *symbol;
+
+    for (int i = 0; i <= s->top; i++) {
+        symbol = s->stack[i];
+
+        if (!isSymbol(symbol[0])) {
+            top++;
+            result[top] = stringToFloat(symbol);
+        } else if (isSymbol(symbol[0])) {
+            b = result[top];
+            top--;
+            a = result[top];
+
+            switch (symbol[0]) {
+                case '^':
+                    result[top] = pow(a, b);
+                    break;
+                case '*':
+                    result[top] = a * b;
+                    break;
+                case '/':
+                    result[top] = a / b;
+                    break;
+                case '+':
+                    result[top] = a + b;
+                    break;
+                case '-':
+                    result[top] = a - b;
+                    break;
+                default:
+                    printf("Invalid Symbol!\n");
+                    break;
+            }
+        }
+    }
+
+    printf("Result : %f", result[top]);
 }
 
 void push(char *data, Stack *s, int length) {
