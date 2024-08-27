@@ -26,7 +26,9 @@ void initStack(char *type, Stack **s, int length);
 void toPostfix(PNs *n);
 void toPrefix(PNs *n);
 
+double stringToFloat(char *str);
 void evaluatePostfix(Stack *s);
+void evaluatePrefix(Stack *s);
 
 void push(char *data, Stack *s, int length);
 char *pop(Stack *s);
@@ -47,6 +49,7 @@ int main() {
     display(notation->prefix);
 
     evaluatePostfix(notation->postfix);
+    evaluatePrefix(notation->prefix);
 
     return 0;
 }
@@ -186,7 +189,7 @@ void toPrefix(PNs *n) {
     }
 }
 
-double stringToFloat(const char *str) {
+double stringToFloat(char *str) {
     double result = 0.0;
     double fraction = 0.0;
     bool isNegative = false;
@@ -262,7 +265,49 @@ void evaluatePostfix(Stack *s) {
         }
     }
 
-    printf("Result : %f", result[top]);
+    printf("Result of Postfix Expression : %.2f\n", result[top]);
+}
+
+void evaluatePrefix(Stack *s) {
+    float *result = (float *)malloc(sizeof(float) * s->top), a, b;
+    int top = -1;
+    char *symbol;
+
+    for (int i = s->top; i >= 0; i--) {
+        symbol = s->stack[i];
+
+        if (!isSymbol(symbol[0])) {
+            top++;
+            result[top] = stringToFloat(symbol);
+        } else if (isSymbol(symbol[0])) {
+            a = result[top];
+            top--;
+            b = result[top];
+
+            switch (symbol[0]) {
+                case '^':
+                    result[top] = pow(a, b);
+                    break;
+                case '*':
+                    result[top] = a * b;
+                    break;
+                case '/':
+                    result[top] = a / b;
+                    break;
+                case '+':
+                    result[top] = a + b;
+                    break;
+                case '-':
+                    result[top] = a - b;
+                    break;
+                default:
+                    printf("Invalid Symbol!\n");
+                    break;
+            }
+        }
+    }
+
+    printf("Result of Prefix  Expression : %.2f\n", result[top]);
 }
 
 void push(char *data, Stack *s, int length) {
