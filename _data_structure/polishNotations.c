@@ -35,7 +35,8 @@ char *pop(Stack *s);
 char *peek(Stack *s);
 void display(Stack *s);
 
-int isLower(char alreadyIn, char toBeInserted);
+int isLowerForPostfix(char alreadyIn, char toBeInserted);
+int isLowerForPrefix(char alreadyIn, char toBeInserted);
 int isSymbol(char symbol);
 
 int main() {
@@ -111,7 +112,7 @@ void toPostfix(PNs *n) {
             }
 
         } else {
-            while (symbol != '(' && isLower(peek(n->stack)[0], symbol)) {
+            while (symbol != '(' && isLowerForPostfix(peek(n->stack)[0], symbol)) {
                 operator[0] = pop(n->stack)[0];
                 push(operator, n->postfix, n->length);
             }
@@ -169,7 +170,7 @@ void toPrefix(PNs *n) {
             }
 
         } else {
-            while (symbol != '(' && isLower(peek(n->stack)[0], symbol)) {
+            while (symbol != '(' && isLowerForPrefix(peek(n->stack)[0], symbol)) {
                 operator[0] = pop(n->stack)[0];
                 push(operator, n->prefix, n->length);
             }
@@ -354,21 +355,28 @@ void display(Stack *s) {
     printf("\n");
 }
 
-// ^ * / + -
-int isLower(char alreadyIn, char toBeInserted) {
+int isLowerForPostfix(char alreadyIn, char toBeInserted) {
     if (alreadyIn == '(') return 0;
 
     if (toBeInserted == alreadyIn) return 1;
 
-    if (toBeInserted == '-') return 1;
+    if (toBeInserted == '+' || toBeInserted == '-') return 1;
 
-    if (toBeInserted == '+' && (alreadyIn == '/' || alreadyIn == '*' || alreadyIn == '^')) return 1;
-
-    if (toBeInserted == '/' && (alreadyIn == '*' || alreadyIn == '^')) return 1;
-
-    if (toBeInserted == '*' && (alreadyIn == '^')) return 1;
+    if ((toBeInserted == '*' || toBeInserted == '/') && (alreadyIn == '/' || alreadyIn == '*' || alreadyIn == '^')) return 1;
 
     return 0;
+}
+
+int isLowerForPrefix(char alreadyIn, char toBeInserted) {
+    if (alreadyIn == '(') return 0;
+
+    if ((toBeInserted == '*' || toBeInserted == '/') && (alreadyIn == '*' || alreadyIn == '/' || alreadyIn == '+' || alreadyIn == '-')) return 0;
+
+    if ((toBeInserted == '-' || toBeInserted == '+') && (alreadyIn == '+' || alreadyIn == '-')) return 0;
+
+    if (toBeInserted == '^' && (alreadyIn == '^')) return 0;
+
+    return 1;
 }
 
 int isSymbol(char symbol) {
